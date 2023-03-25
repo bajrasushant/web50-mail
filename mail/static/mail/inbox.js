@@ -69,9 +69,9 @@ function load_mailbox(mailbox) {
 										<p><strong>Received: </strong>${time}</p>`;
 				boxDetails.append(view);
 				if (read == true) {
-				box.classList.add('bg-secondary', 'text-light');
+					box.classList.add('bg-secondary', 'text-light');
 				} else {
-				box.classList.add('bg-light');
+					box.classList.add('bg-light');
 				}       
 				if (mailbox == 'inbox') {
 					archButton.classList.add('btn', 'btn-warning');
@@ -121,6 +121,15 @@ function load_email(id, mailbox) {
 	fetch(`emails/${id}`)
 	.then(response => response.json())
 	.then(email => {
+		if(mailbox != 'sent') {
+			fetch(`emails/${id}`, {
+				method: 'PUT',
+				body: JSON.stringify({
+					read: true
+						})
+					})
+			}
+			
 		// Print email
 		// console.log(email);
 		// console.log(id);
@@ -134,18 +143,9 @@ function load_email(id, mailbox) {
 		document.querySelector('#email-body').innerHTML = `${email.body}`;
 
 		
-		const reply = document.querySelectory('#reply-button');
+		const reply = document.getElementById('reply-button');
 		reply.addEventListener('click', () => reply_email(id));
-
-		if(mailbox != 'sent') {
-		fetch(`emails/${id}`, {
-			method: 'PUT',
-			body: JSON.stringify({
-				read: true
-					})
-				})
-		}
-		});
+	});
 	}
 
 function archive(id, status) {
