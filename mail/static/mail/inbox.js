@@ -7,8 +7,38 @@ document.addEventListener('DOMContentLoaded', function() {
 	document.querySelector('#compose').addEventListener('click', compose_email);
 	document.querySelector('#compose-form').addEventListener('submit', send_mail);
 	// By default, load the inbox
-	load_mailbox('inbox');
+
+	document.querySelectorAll('button').forEach(button => {
+        button.onclick = function() {
+            let section = button.id;
+			if (section === 'archived') {
+				section = 'archive';
+			}
+			if (section === 'inbox' || section === 'sent' || section === 'archive') {
+				history.pushState({ mailbox: section }, "", `mailbox${section}`);
+			} else if (section === 'compose' || section ==='compose-form') {
+				history.pushState({ compose: 'compose'}, '', `compose`);
+			}
+		}
 	});
+	load_mailbox('inbox');
+});
+
+window.onpopstate = function(event) {
+	// console.log(event.state);
+	// const routes = ['/', '', '/login', '/register', '/logout']
+	if (event.state) {
+		if (event.state.mailbox) {
+			load_mailbox(event.state.mailbox);
+		} else if (event.state.email_id) {
+			load_email(event.state.email_id);
+		} else if (event.state.compose === "compose") {
+			compose_email();
+		} else {
+			load_mailbox('inbox');
+		}
+	}
+};
 
 function compose_email() {
 
@@ -20,7 +50,6 @@ function compose_email() {
 	document.querySelector('#compose-recipients').value = '';
 	document.querySelector('#compose-subject').value = '';
 	document.querySelector('#compose-body').value = '';
-
 	// sending the email
 	document.querySelector('form').onsubmit = () => send_mail;
 
@@ -86,7 +115,12 @@ function load_mailbox(mailbox) {
 			box.append(boxDetails);
 			document.querySelector('#emails-view').append(box);
 			archButton.addEventListener('click', () => archive(view.id, archived));
-			view.addEventListener('click', () => load_email(view.id, mailbox))
+			// view.addEventListener('click',() => history.pushState({ email_id: view.id }, '', `email${view.id}`));
+			// view.addEventListener('click', () => load_email(view.id, mailbox));
+			view.addEventListener('click', () => {
+				history.pushState({ email_id: view.id }, '', `email${view.id}`);
+				load_email(view.id, mailbox);
+			  });
 		})
 		});
 }
@@ -118,6 +152,7 @@ function load_email(id, mailbox) {
 	document.querySelector('#emails-view').style.display = 'none';
 	document.querySelector('#compose-view').style.display = 'none';
 	document.querySelector('#email-details').style.display = 'block';
+	
 	fetch(`emails/${id}`)
 	.then(response => response.json())
 	.then(email => {
