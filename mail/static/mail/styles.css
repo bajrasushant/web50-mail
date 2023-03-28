@@ -1,3 +1,29 @@
 textarea {
     min-height: 400px;
 }
+
+@keyframes hide {
+    0% {
+        opacity: 1;
+        height: 100%;
+        line-height: 100%;
+    }
+    80% {
+        opacity: 0;
+        height: 30%;
+        line-height: 20%
+    }
+    100% {
+        opacity: 0;
+        height: 0%;
+        line-height: 0px;
+    }
+}
+
+.mail {
+    animation-name: hide;
+    animation-play-state: paused;
+    animation-duration: 1s;
+    animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1);
+    animation-fill-mode: forwards;
+}

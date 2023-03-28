@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	document.querySelector('#compose').addEventListener('click', compose_email);
 	document.querySelector('#compose-form').addEventListener('submit', send_mail);
 	// By default, load the inbox
-
+	load_mailbox('inbox');
 	document.querySelectorAll('button').forEach(button => {
         button.onclick = function() {
             let section = button.id;
@@ -17,11 +17,13 @@ document.addEventListener('DOMContentLoaded', function() {
 			if (section === 'inbox' || section === 'sent' || section === 'archive') {
 				history.pushState({ mailbox: section }, "", `mailbox${section}`);
 			} else if (section === 'compose' || section ==='compose-form') {
-				history.pushState({ compose: 'compose'}, '', `compose`);
+				history.pushState({ compose: 'compose'}, '', `mailboxcompose`);
 			}
 		}
 	});
-	load_mailbox('inbox');
+
+	
+	
 });
 
 window.onpopstate = function(event) {
@@ -78,7 +80,7 @@ function load_mailbox(mailbox) {
 			const archived = email.archived;
 			// ... do something else with emails ...
 			const box = document.createElement('div');
-			box.classList.add('card', 'mb-2');
+			box.classList.add('card', 'mb-2', 'mail');
 			const boxDetails = document.createElement('div');
 			boxDetails.classList.add('card-body');
 			const archButton = document.createElement('button');
@@ -148,7 +150,7 @@ function send_mail(event) {
 
 // mailbox as parameter as to detect if customer access through inbox or sentbox to mark read and unread accordingly
 function load_email(id, mailbox) {
-	// console.log(mailbox);
+	console.log(mailbox);
 	document.querySelector('#emails-view').style.display = 'none';
 	document.querySelector('#compose-view').style.display = 'none';
 	document.querySelector('#email-details').style.display = 'block';
@@ -184,7 +186,14 @@ function load_email(id, mailbox) {
 	}
 
 function archive(id, status) {
-	if(status == false){
+	const view = document.getElementById(id);
+	const wholeCard = view.parentElement.parentElement;
+	wholeCard.style.animationPlayState = 'running';
+	wholeCard.addEventListener('animationend', () => {
+		wholeCard.remove();
+	});
+
+	if(status === false){
 		fetch(`emails/${id}`, {
 			method: 'PUT',
 			body: JSON.stringify({
@@ -199,7 +208,7 @@ function archive(id, status) {
 			})
 		})
 	}
-	load_mailbox('inbox');
+
 }
 
 function reply_email(id) {
